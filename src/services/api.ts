@@ -3,7 +3,7 @@ import { Notify } from 'quasar';
 
 // Single axios instance for app-wide usage
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: 'http://localhost:8000/api',
 });
 
 function translateToEs(input: string): string {
