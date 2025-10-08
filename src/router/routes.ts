@@ -4,7 +4,28 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    children: [
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('pages/IndexPage.vue'),
+      },
+      {
+        path: 'reviews',
+        name: 'reviews',
+        component: () => import('pages/ReviewsPage.vue'),
+      },
+      {
+        path: 'contacts',
+        name: 'contacts',
+        component: () => import('pages/ContactsPage.vue'),
+      },
+      {
+        path: 'gallery',
+        name: 'gallery',
+        component: () => import('pages/GalleryPage.vue'),
+      },
+    ],
   },
 
   {
@@ -13,8 +34,6 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/LoginPage.vue') }],
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),

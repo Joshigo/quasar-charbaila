@@ -1,27 +1,44 @@
 <template>
-  <q-item clickable tag="a" target="_blank" :href="link">
-    <q-item-section v-if="icon" avatar>
-      <q-icon :name="icon" />
+  <q-item clickable tag="a" @click="navigateTo()">
+    <q-item-section v-if="props.icon" avatar>
+      <q-icon :name="props.icon" />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label>{{ title }}</q-item-label>
-      <q-item-label caption>{{ caption }}</q-item-label>
+      <q-item-label>{{ props.title }}</q-item-label>
+      <q-item-label caption>{{ props.caption ?? '' }}</q-item-label>
     </q-item-section>
   </q-item>
 </template>
 
 <script setup lang="ts">
-export interface EssentialLinkProps {
-  title: string;
-  caption?: string;
-  link?: string;
-  icon?: string;
-}
+import { useRouter } from 'vue-router';
 
-withDefaults(defineProps<EssentialLinkProps>(), {
-  caption: '',
-  link: '#',
-  icon: '',
+const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+
+  caption: {
+    type: String,
+    default: '',
+  },
+
+  link: {
+    type: String,
+    default: '#',
+  },
+
+  icon: {
+    type: String,
+    default: '',
+  },
 });
+
+const router = useRouter();
+
+const navigateTo = () => {
+  void router.push(props.link);
+};
 </script>
