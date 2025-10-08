@@ -7,9 +7,9 @@ import type { DeleteResponse } from 'src/types/common/common.interface';
 const authStore = useAuthStore();
 const token = authStore.token;
 
-export async function listReviews(page = 1) {
-  const { data } = await api.get<ReviewResponse>('/reviews', {
-    params: { page },
+export async function listReviews(page = 1, per_page = 10) {
+  const { data } = await api.get<ReviewResponse>(`/reviewsAdmin`, {
+    params: { page, per_page },
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -6,9 +6,9 @@ import type { DeleteResponse } from 'src/types/common/common.interface';
 const authStore = useAuthStore();
 const token = authStore.token;
 
-export async function listContacts(page = 1) {
+export async function listContacts(page = 1, per_page = 10) {
   const { data } = await api.get<ContactResponse>('/contacts', {
-    params: { page },
+    params: { page, per_page },
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -52,3 +52,7 @@ export interface Link {
   label: string;
   active: boolean;
 }
+
+export interface CreateCategoryPayload {
+  name: string;
+}
