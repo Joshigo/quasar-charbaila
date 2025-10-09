@@ -6,7 +6,9 @@
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div class="row items-center q-gutter-sm">
+          <q-btn flat dense icon="logout" label="Logout" @click="onLogout" />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -28,7 +30,10 @@
 import { ref } from 'vue';
 import EssentialLink from 'components/EssentialLink.vue';
 import { linksList } from '../router/linkList';
+import { useAuth } from 'src/composables/auth/useAuth';
 const leftDrawerOpen = ref(false);
+
+const { onLogout } = useAuth();
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
