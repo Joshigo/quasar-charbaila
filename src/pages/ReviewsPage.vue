@@ -16,6 +16,10 @@
     :pagination="pagination"
     @request="onRequest"
   >
+    <!-- Columna fecha formateada -->
+    <template #body-cell-created_at="{ value }">
+      <span>{{ formatDate(value) }}</span>
+    </template>
     <!-- Acciones -->
     <template #body-cell-actions="{ row }">
       <q-btn flat dense icon="visibility" @click="handleToggleVisibility(row)" />
@@ -33,6 +37,7 @@ import {
   deleteReview,
 } from 'src/composables/reviews/useReviewsApi';
 import type { Datum } from 'src/types/review.interface';
+import { formatDate } from 'src/utils';
 
 const rows = ref<Datum[]>([]);
 const loading = ref(false);
