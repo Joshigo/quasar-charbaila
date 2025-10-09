@@ -1,4 +1,4 @@
-export interface GallerieResponse {
+export interface GalleryResponse {
   success: boolean;
   code: number;
   message: string;
@@ -51,4 +51,31 @@ export interface Link {
   url: null | string;
   label: string;
   active: boolean;
+}
+
+export interface CreateGalleryPayload {
+  category_id: number;
+  is_pinned: number;
+  is_visible: number;
+  type: string;
+  src: string;
+  alt?: string | null;
+  title: string;
+  description?: string | null;
+  duration?: string;
+  participants?: number;
+  image?: File | Blob;
+}
+
+export interface UpdateGalleriePayload {
+  category_id?: number;
+  is_pinned?: number;
+  is_visible?: number;
+  type?: string;
+  src?: string;
+  alt?: string | null;
+  title?: string;
+  description?: string | null;
+  duration?: string;
+  participants?: number;
 }
