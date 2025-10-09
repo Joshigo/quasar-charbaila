@@ -17,7 +17,6 @@
       <slot name="top-right" />
     </template>
 
-    <!-- Generic cell renderer with sensible defaults; can be overridden by per-column slots -->
     <template #body-cell="slotProps">
       <q-td :props="slotProps">
         <slot :name="`body-cell-${slotProps.col.name}`" v-bind="slotProps">
@@ -32,7 +31,7 @@
             />
           </template>
           <template v-else-if="resolveRenderer(slotProps.col.name, slotProps.value) === 'date'">
-            <span>{{ formatDate(slotProps.value) }}</span>
+            <span>{{ slotProps.value }}</span>
           </template>
           <template v-else-if="resolveRenderer(slotProps.col.name, slotProps.value) === 'boolean'">
             <q-badge
@@ -80,18 +79,31 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { Datum as ContactRow } from 'src/types/contact.interface';
+import type { Datum as ReviewRow } from 'src/types/review.interface';
 
 // Minimal column type compatible with Quasar's QTable
 type Align = 'left' | 'right' | 'center';
-export interface ColumnDef<RowT = any> {
+type TableRow = ContactRow | ReviewRow;
+type CellValue = string | number | boolean | Date | null | undefined;
+
+export interface ColumnDef<RowT = TableRow> {
   name: string;
   label: string;
-  field: string | ((row: RowT) => any);
+  field: string | ((row: RowT) => CellValue);
   align?: Align;
   sortable?: boolean;
 }
 
-interface Props<RowT = Record<string, unknown>> {
+interface Pagination {
+  page: number;
+  rowsPerPage: number;
+  rowsNumber?: number;
+  sortBy?: string;
+  descending?: boolean;
+}
+
+interface Props<RowT = TableRow> {
   rows: RowT[];
   columns?: Array<string | ColumnDef<RowT>>;
   rowKey?: string;
@@ -101,11 +113,9 @@ interface Props<RowT = Record<string, unknown>> {
   bordered?: boolean;
   wrapCells?: boolean;
   separator?: 'horizontal' | 'vertical' | 'cell' | 'none';
-  pagination?: Record<string, unknown>;
+  pagination?: Pagination;
   noDataLabel?: string;
-  // Optional label overrides for inferred columns
   columnLabels?: Record<string, string>;
-  // Whether to auto-add an actions column if slot provided
   showActions?: boolean;
 }
 
@@ -151,14 +161,14 @@ function isBooleanLike(val: unknown): boolean {
   return typeof val === 'boolean' || val === 0 || val === 1;
 }
 
-const inferredColumns = computed<ColumnDef[]>(() => {
+const inferredColumns = computed<ColumnDef<TableRow>[]>(() => {
   if (props.rows.length === 0) return [];
-  const sample = props.rows[0] as Record<string, unknown>;
+  const sample = props.rows[0] as unknown as Record<string, unknown>;
   const keys = Object.keys(sample).filter((k) => {
-    const v = (sample as any)[k];
+    const v = sample[k];
     return typeof v !== 'object' || v === null || v instanceof Date;
   });
-  const cols: ColumnDef[] = keys.map((k) => ({
+  const cols: ColumnDef<TableRow>[] = keys.map((k) => ({
     name: k,
     label: props.columnLabels?.[k] ?? startCase(k),
     field: k,
@@ -179,7 +189,7 @@ const inferredColumns = computed<ColumnDef[]>(() => {
   return cols;
 });
 
-const computedColumns = computed<ColumnDef[]>(() => {
+const computedColumns = computed<ColumnDef<TableRow>[]>(() => {
   if (props.columns && props.columns.length) {
     const cols = props.columns.map((c) =>
       typeof c === 'string'
@@ -189,7 +199,7 @@ const computedColumns = computed<ColumnDef[]>(() => {
             field: c,
             align: 'left',
             sortable: true,
-          } as ColumnDef)
+          } as ColumnDef<TableRow>)
         : c,
     );
     if (props.showActions && !cols.some((c) => c.name === 'actions')) {
@@ -201,7 +211,7 @@ const computedColumns = computed<ColumnDef[]>(() => {
         sortable: false,
       });
     }
-    return cols as ColumnDef[];
+    return cols;
   }
   return inferredColumns.value;
 });
@@ -212,58 +222,11 @@ function onRequest(payload: unknown) {
 
 // Renderer selection
 type Renderer = 'rating' | 'date' | 'boolean' | 'text';
-function resolveRenderer(colName: string, value: unknown): Renderer {
+function resolveRenderer(colName: string, value: CellValue): Renderer {
   if (colName === 'rating' && typeof value === 'number') return 'rating';
   if (/(_at|date)$/i.test(colName) && isDateLike(value)) return 'date';
   if (/^(is_|has_)/i.test(colName) && isBooleanLike(value)) return 'boolean';
   return 'text';
-}
-
-function getDefaultRenderer(colName: string, value: unknown) {
-  const r = resolveRenderer(colName, value);
-  switch (r) {
-    case 'rating':
-      return 'q-rating';
-    case 'date':
-      return 'span';
-    case 'boolean':
-      return 'q-badge';
-    default:
-      return 'span';
-  }
-}
-
-function formatDate(val: unknown): string {
-  const d = val instanceof Date ? val : new Date(String(val));
-  if (isNaN(d.valueOf())) return '';
-  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(d);
-}
-
-function getRendererProps(colName: string, value: unknown, row: Record<string, unknown>) {
-  const r = resolveRenderer(colName, value);
-  if (r === 'rating') {
-    return {
-      modelValue: Number(value ?? 0),
-      max: 5,
-      color: 'amber',
-      size: '16px',
-      readonly: true,
-      'icon-selected': 'star',
-    };
-  }
-  if (r === 'date') {
-    return { innerHTML: formatDate(value) } as any;
-  }
-  if (r === 'boolean') {
-    const v = typeof value === 'boolean' ? value : Number(value) === 1;
-    return {
-      label: v ? 'Visible' : 'Oculto',
-      color: v ? 'positive' : 'negative',
-      rounded: true,
-      outline: !v,
-    };
-  }
-  return { innerHTML: String(value ?? '') } as any;
 }
 </script>
 
