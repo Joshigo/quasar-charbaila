@@ -1,31 +1,45 @@
 <template>
-  <TableComponent
-    :rows="rows"
-    :columns="['id', 'name', 'email', 'comment', 'rating', 'is_visible', 'created_at']"
-    :column-labels="{
-      id: 'ID',
-      name: 'Nombre',
-      email: 'Correo',
-      comment: 'Comentario',
-      rating: 'Calificación',
-      is_visible: 'Visible',
-      created_at: 'Creado',
-    }"
-    :show-actions="true"
-    :loading="loading"
-    :pagination="pagination"
-    @request="onRequest"
-  >
-    <!-- Columna fecha formateada -->
-    <template #body-cell-created_at="{ value }">
-      <span>{{ formatDate(value) }}</span>
-    </template>
-    <!-- Acciones -->
-    <template #body-cell-actions="{ row }">
-      <q-btn flat dense icon="visibility" @click="handleToggleVisibility(row)" />
-      <q-btn flat dense color="negative" icon="delete" @click="handleDelete(row)" />
-    </template>
-  </TableComponent>
+  <q-page class="q-pa-md">
+    <div class="q-mx-auto full-width" style="max-width: 1200px">
+      <!-- Page header -->
+      <div class="row items-center justify-between q-mb-md">
+        <div class="text-h5">Reseñas</div>
+        <div class="text-caption text-grey-7">Listado y acciones</div>
+      </div>
+
+      <q-card flat bordered>
+        <q-card-section class="q-pa-md">
+          <TableComponent
+            :rows="rows"
+            :columns="['id', 'name', 'email', 'comment', 'rating', 'is_visible', 'created_at']"
+            :column-labels="{
+              id: 'ID',
+              name: 'Nombre',
+              email: 'Correo',
+              comment: 'Comentario',
+              rating: 'Calificación',
+              is_visible: 'Visible',
+              created_at: 'Creado',
+            }"
+            :show-actions="true"
+            :loading="loading"
+            :pagination="pagination"
+            @request="onRequest"
+          >
+            <!-- Columna fecha formateada -->
+            <template #body-cell-created_at="{ value }">
+              <span>{{ formatDate(value) }}</span>
+            </template>
+            <!-- Acciones -->
+            <template #body-cell-actions="{ row }">
+              <q-btn flat dense icon="visibility" @click="handleToggleVisibility(row)" />
+              <q-btn flat dense color="negative" icon="delete" @click="handleDelete(row)" />
+            </template>
+          </TableComponent>
+        </q-card-section>
+      </q-card>
+    </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
