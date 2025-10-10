@@ -65,13 +65,17 @@ async function fetchReviews() {
     pagination.value.rowsNumber = res.data.total;
     if (res.data.per_page) pagination.value.rowsPerPage = res.data.per_page as unknown as number;
     if (res.data.current_page) pagination.value.page = res.data.current_page as unknown as number;
+    console.log(pagination.value);
   } finally {
     loading.value = false;
   }
 }
 
 function onRequest(payload: unknown) {
-  const p = payload as { pagination?: { page?: number; rowsPerPage?: number } };
+  console.log('Request payload:', payload);
+  const p = payload as {
+    pagination?: { page?: number; rowsPerPage?: number; rowsNumber?: number };
+  };
   const pg = p?.pagination ?? {};
   if (typeof pg.page === 'number') pagination.value.page = pg.page;
   if (typeof pg.rowsPerPage === 'number') pagination.value.rowsPerPage = pg.rowsPerPage;

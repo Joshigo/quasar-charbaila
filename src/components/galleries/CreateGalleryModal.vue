@@ -78,7 +78,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { createGallery, updateGallery } from 'src/composables/galleries/useGallery';
-import { listCategories } from 'src/composables/categories/useCategoryApi';
+import { useCategoriesStore } from 'src/stores/categories';
 // No usamos el payload tipado de la API directamente aquí, ya que el formulario maneja tipos cómodos
 // (booleans y File) y luego transformamos a FormData en el submit.
 
@@ -105,7 +105,10 @@ const emit = defineEmits<{
 const $q = useQuasar();
 
 const loading = ref(false);
-const categoryOptions = ref<{ label: string; value: number }[]>([]);
+const store = useCategoriesStore();
+const categoryOptions = computed<{ label: string; value: number }[]>(() =>
+  store.categories.map((c) => ({ label: c.name, value: c.id })),
+);
 
 type GalleryForm = {
   title: string;
@@ -131,16 +134,14 @@ const form = ref<GalleryForm>({ ...initialFormState });
 
 const isEdit = computed(() => props.mode === 'edit');
 
-async function fetchCategories() {
-  try {
-    const res = await listCategories(1, 100); // Fetch all categories
-    categoryOptions.value = res.data.data.map((c) => ({
-      label: c.name,
-      value: c.id,
-    }));
-  } catch (err) {
-    console.log(err);
-    $q.notify({ type: 'negative', message: 'Error al cargar categorías' });
+async function ensureCategoriesLoaded() {
+  if (!store.categories.length) {
+    try {
+      await store.fetchAll();
+    } catch (err) {
+      console.log(err);
+      $q.notify({ type: 'negative', message: 'Error al cargar categorías' });
+    }
   }
 }
 
@@ -203,5 +204,5 @@ watch(
   },
 );
 
-onMounted(fetchCategories);
+onMounted(ensureCategoriesLoaded);
 </script>

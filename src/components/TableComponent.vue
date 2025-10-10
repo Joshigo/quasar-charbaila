@@ -128,11 +128,13 @@ const props = withDefaults(defineProps<Props>(), {
   bordered: true,
   wrapCells: true,
   separator: 'horizontal',
-  pagination: () => ({ rowsPerPage: 10, page: 1 }),
+  pagination: () => ({ rowsPerPage: 10, page: 1, rowsNumber: 0 }),
   noDataLabel: 'No hay datos',
   columnLabels: () => ({}),
   showActions: false,
 });
+
+console.log('Props:', props);
 
 const emit = defineEmits<{
   (e: 'request', payload: unknown): void;
@@ -176,7 +178,6 @@ const inferredColumns = computed<ColumnDef<TableRow>[]>(() => {
     sortable: true,
   }));
 
-  // If consumer wants actions and exposes the slot, add a trailing actions column
   if (props.showActions) {
     cols.push({
       name: 'actions',
@@ -217,6 +218,7 @@ const computedColumns = computed<ColumnDef<TableRow>[]>(() => {
 });
 
 function onRequest(payload: unknown) {
+  console.log('onEmit payload', payload);
   emit('request', payload);
 }
 

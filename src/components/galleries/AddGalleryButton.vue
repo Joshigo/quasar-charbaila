@@ -1,17 +1,22 @@
 <template>
-  <ModalTriggerButton
+  <q-btn
     color="primary"
     icon="add_photo_alternate"
     label="Agregar Nueva Imagen"
-    :modal-component="CreateGalleryModal"
-    :modal-props="{ mode: 'create' }"
-    @modal:created="$emit('created')"
+    @click="openModal"
   />
+  <CreateGalleryModal v-model="isModalOpen" @created="$emit('created')" />
 </template>
 
 <script setup lang="ts">
-import ModalTriggerButton from 'src/components/common/ModalTriggerButton.vue';
+import { ref } from 'vue';
 import CreateGalleryModal from './CreateGalleryModal.vue';
 
 defineEmits(['created']);
+
+const isModalOpen = ref(false);
+
+function openModal() {
+  isModalOpen.value = true;
+}
 </script>

@@ -94,7 +94,7 @@ function getImageUrl(src: string) {
 async function fetchGalleries() {
   loading.value = true;
   try {
-    const response = await listGalleries(1, 100); // Fetch all for now
+    const response = await listGalleries(1, 100);
     galleries.value = response.data.data;
   } catch (error) {
     console.log(error);
@@ -152,7 +152,6 @@ function confirmDelete(galleryId: number) {
     cancel: true,
     persistent: true,
   }).onOk(() => {
-    // Wrap async work to avoid returning a Promise from the callback
     void (async () => {
       try {
         await deleteGallery(galleryId);

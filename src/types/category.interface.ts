@@ -56,3 +56,16 @@ export interface Link {
 export interface CreateCategoryPayload {
   name: string;
 }
+
+// Response for POST /categories (single item)
+export interface CategoryCreateResponse {
+  success: boolean;
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+  };
+}

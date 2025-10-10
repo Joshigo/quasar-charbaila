@@ -1,5 +1,9 @@
 import { api } from 'src/services/api';
-import type { CategoryResponse, CreateCategoryPayload } from 'src/types/category.interface';
+import type {
+  CategoryResponse,
+  CategoryCreateResponse,
+  CreateCategoryPayload,
+} from 'src/types/category.interface';
 import { useAuthStore } from 'src/stores/auth';
 
 const authStore = useAuthStore();
@@ -15,14 +19,17 @@ export async function listCategories(page = 1, per_page = 10) {
   return data;
 }
 
-export async function createCategory(payload: CreateCategoryPayload) {
-  const { data } = await api.post<CategoryResponse>(`/categories`, payload, {
+export async function createCategory(
+  payload: CreateCategoryPayload,
+): Promise<CategoryCreateResponse> {
+  const { data } = await api.post<CategoryCreateResponse>(`/categories`, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
   return data;
 }
+
 export async function deleteCategory(categoryId: number) {
   const { data } = await api.delete<CategoryResponse>(`/categories/${categoryId}`, {
     headers: {

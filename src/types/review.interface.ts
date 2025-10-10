@@ -48,7 +48,7 @@ export interface Datum {
   is_visible: number;
   created_at: Date;
   updated_at: Date;
-  deleted_at: null;
+  deleted_at: null | Date;
 }
 
 export interface Link {
