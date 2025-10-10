@@ -57,14 +57,12 @@ export interface CreateGalleryPayload {
   category_id: number;
   is_pinned: number;
   is_visible: number;
-  type: string;
-  src: string;
-  alt?: string | null;
+  type: 'image';
   title: string;
   description?: string | null;
-  duration?: string;
+  duration: string;
   participants?: number;
-  image?: File | Blob;
+  image: File | Blob;
 }
 
 export interface UpdateGalleriePayload {
@@ -73,7 +71,6 @@ export interface UpdateGalleriePayload {
   is_visible?: number;
   type?: string;
   src?: string;
-  alt?: string | null;
   title?: string;
   description?: string | null;
   duration?: string;

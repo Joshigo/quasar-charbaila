@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="row items-center justify-evenly">
     <div class="q-mx-auto full-width" style="max-width: 1200px">
       <!-- Page header -->
       <div class="row items-center justify-between q-mb-md">
@@ -25,12 +25,11 @@
             :loading="loading"
             :pagination="pagination"
             @request="onRequest"
+            separator="vertical"
           >
-            <!-- Columna fecha formateada -->
             <template #body-cell-created_at="{ value }">
               <span>{{ formatDate(value) }}</span>
             </template>
-            <!-- Acciones -->
             <template #body-cell-actions="{ row }">
               <q-btn flat dense icon="visibility" @click="handleToggleVisibility(row)" />
               <q-btn flat dense color="negative" icon="delete" @click="handleDelete(row)" />

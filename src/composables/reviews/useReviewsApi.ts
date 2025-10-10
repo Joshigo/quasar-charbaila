@@ -8,6 +8,7 @@ const authStore = useAuthStore();
 const token = authStore.token;
 
 export async function listReviews(page = 1, per_page = 10) {
+  console.log('listReviews', { page, per_page });
   const { data } = await api.get<ReviewResponse>(`/reviewsAdmin`, {
     params: { page, per_page },
     headers: {
@@ -18,11 +19,15 @@ export async function listReviews(page = 1, per_page = 10) {
 }
 
 export async function changeReviewVisibility(reviewId: number) {
-  const { data } = await api.put<ReviewVisibilityResponse>(`/reviews/${reviewId}/visibility`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const { data } = await api.put<ReviewVisibilityResponse>(
+    `/reviews/${reviewId}/visibility`,
+    undefined,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
   return data;
 }
 
