@@ -15,10 +15,10 @@ export interface Data {
   links: Link[];
   next_page_url: null;
   path: string;
-  per_page: number;
+  rowsPerPage: number;
   prev_page_url: null;
   to: number;
-  total: number;
+  rowsNumber: number;
 }
 
 export interface Datum {

@@ -14,7 +14,7 @@ export interface ReviewVisibilityData {
   is_visible: boolean;
   created_at: string;
   updated_at: string;
-  deleted_at: null;
+  deleted_at: string | null;
 }
 export interface ReviewResponse {
   success: boolean;
@@ -25,30 +25,18 @@ export interface ReviewResponse {
 
 export interface Data {
   current_page: number;
-  data: Datum[];
+  data: ReviewVisibilityData[];
   first_page_url: string;
   from: number;
   last_page: number;
   last_page_url: string;
   links: Link[];
-  next_page_url: null;
+  next_page_url: string | null;
   path: string;
-  per_page: number;
-  prev_page_url: null;
+  rowsPerPage: number;
+  prev_page_url: string | null;
   to: number;
-  total: number;
-}
-
-export interface Datum {
-  id: number;
-  name: string;
-  email: string;
-  comment: string;
-  rating: number;
-  is_visible: number;
-  created_at: Date;
-  updated_at: Date;
-  deleted_at: null | Date;
+  rowsNumber: number;
 }
 
 export interface Link {

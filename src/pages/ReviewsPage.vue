@@ -10,7 +10,8 @@
       <q-card flat bordered>
         <q-card-section class="q-pa-md">
           <TableComponent
-            :rows="rows"
+            ref="tableRef"
+            data-source="reviews"
             :columns="['id', 'name', 'email', 'comment', 'rating', 'is_visible', 'created_at']"
             :column-labels="{
               id: 'ID',
@@ -22,8 +23,6 @@
               created_at: 'Creado',
             }"
             :show-actions="true"
-            :loading="loading"
-            :pagination="pagination"
             @request="onRequest"
             separator="vertical"
           >
@@ -42,57 +41,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
-import {
-  listReviews,
-  changeReviewVisibility,
-  deleteReview,
-} from 'src/composables/reviews/useReviewsApi';
-import type { Datum } from 'src/types/review.interface';
+import { useReviewsApi } from 'src/composables/reviews/useReviewsApi';
+import type { ReviewVisibilityData } from 'src/types/review.interface';
 import { formatDate } from 'src/utils';
 
-const rows = ref<Datum[]>([]);
-const loading = ref(false);
-const pagination = ref({ page: 1, rowsPerPage: 10, rowsNumber: 0 });
+const { deleteReview, changeReviewVisibility } = useReviewsApi();
 
-async function fetchReviews() {
-  loading.value = true;
-  try {
-    const res = await listReviews(pagination.value.page, pagination.value.rowsPerPage);
-    rows.value = res.data.data;
-    // actualizar paginación desde respuesta
-    pagination.value.rowsNumber = res.data.total;
-    if (res.data.per_page) pagination.value.rowsPerPage = res.data.per_page as unknown as number;
-    if (res.data.current_page) pagination.value.page = res.data.current_page as unknown as number;
-    console.log(pagination.value);
-  } finally {
-    loading.value = false;
-  }
-}
+const tableRef = ref<InstanceType<typeof TableComponent> | null>(null);
 
 function onRequest(payload: unknown) {
   console.log('Request payload:', payload);
-  const p = payload as {
-    pagination?: { page?: number; rowsPerPage?: number; rowsNumber?: number };
-  };
-  const pg = p?.pagination ?? {};
-  if (typeof pg.page === 'number') pagination.value.page = pg.page;
-  if (typeof pg.rowsPerPage === 'number') pagination.value.rowsPerPage = pg.rowsPerPage;
-  void fetchReviews();
 }
 
-async function handleToggleVisibility(row: Datum) {
+async function handleToggleVisibility(row: ReviewVisibilityData) {
   await changeReviewVisibility(row.id);
-  await fetchReviews();
+  tableRef.value?.refresh?.();
 }
 
-async function handleDelete(row: Datum) {
+async function handleDelete(row: ReviewVisibilityData) {
   await deleteReview(row.id);
-  await fetchReviews();
+  tableRef.value?.refresh?.();
 }
-
-onMounted(() => {
-  void fetchReviews();
-});
 </script>
