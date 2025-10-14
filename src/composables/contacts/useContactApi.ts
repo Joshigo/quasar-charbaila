@@ -1,5 +1,5 @@
 import { api } from 'src/services/api';
-import type { ContactResponse, Datum } from 'src/types/contact.interface';
+import type { ContactResponse, ContactData } from 'src/types/contact.interface';
 import { useAuthStore } from 'src/stores/auth';
 import type { DeleteResponse } from 'src/types/common/common.interface';
 import { ref } from 'vue';
@@ -9,7 +9,7 @@ export function useContactApi() {
   const authStore = useAuthStore();
   const token = authStore.token;
 
-  const contacts = ref<Datum[]>([]);
+  const contacts = ref<ContactData[]>([]);
   const pagination = ref<Pagination>({
     page: 1,
     rowsPerPage: 10,
@@ -21,8 +21,8 @@ export function useContactApi() {
   const loading = ref(false);
 
   async function listContacts() {
+    loading.value = true;
     try {
-      loading.value = true;
       const { data } = await api.get<ContactResponse>('/contacts', {
         params: {
           page: pagination.value.page,
@@ -34,7 +34,7 @@ export function useContactApi() {
       });
       contacts.value = data.data.data;
       const p = data.data;
-      console.log('Contacts Data:', data.data);
+
       pagination.value = {
         page: p.current_page,
         rowsPerPage: p.rowsPerPage,
@@ -43,7 +43,6 @@ export function useContactApi() {
         to: p.to,
         from: p.from,
       };
-      console.log('Contacts Pagination:', pagination.value);
     } catch (error) {
       console.error('Error fetching contacts:', error);
     } finally {
@@ -53,13 +52,18 @@ export function useContactApi() {
 
   async function deleteContact(contactId: number) {
     loading.value = true;
-    const { data } = await api.delete<DeleteResponse>(`/contacts/${contactId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    loading.value = false;
-    return data;
+    try {
+      const { data } = await api.delete<DeleteResponse>(`/contacts/${contactId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data;
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   return {

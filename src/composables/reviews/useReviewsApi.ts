@@ -45,10 +45,6 @@ export function useReviewsApi() {
         to: p.to,
         from: p.from,
       };
-      if (pagination.value.page !== p.current_page) pagination.value.page = p.current_page;
-      if (pagination.value.rowsPerPage !== p.rowsPerPage)
-        pagination.value.rowsPerPage = p.rowsPerPage;
-
       return data;
     } catch (error) {
       console.error('Error fetching reviews:', error);
@@ -57,41 +53,40 @@ export function useReviewsApi() {
     }
   }
 
-  // Refetch when pagination controls change
-  // watch(
-  //   [page, rowsPerPage],
-  //   () => {
-  //     void listReviews();
-  //   },
-  //   { immediate: true },
-  // );
-
-  // watch();
-
   async function changeReviewVisibility(reviewId: number) {
     loading.value = true;
-    const { data } = await api.put<ReviewVisibilityResponse>(
-      `/reviews/${reviewId}/visibility`,
-      undefined,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      const { data } = await api.put<ReviewVisibilityResponse>(
+        `/reviews/${reviewId}/visibility`,
+        undefined,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    );
-    loading.value = false;
-    return data;
+      );
+      return data;
+    } catch (error) {
+      console.error('Error changing review visibility:', error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function deleteReview(reviewId: number) {
     loading.value = true;
-    const { data } = await api.delete<DeleteResponse>(`/reviews/${reviewId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    loading.value = false;
-    return data;
+    try {
+      const { data } = await api.delete<DeleteResponse>(`/reviews/${reviewId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data;
+    } catch (error) {
+      console.error('Error deleting review:', error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   return {

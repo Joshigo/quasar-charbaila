@@ -7,7 +7,7 @@ export interface ContactResponse {
 
 export interface Data {
   current_page: number;
-  data: Datum[];
+  data: ContactData[];
   first_page_url: string;
   from: number;
   last_page: number;
@@ -21,7 +21,7 @@ export interface Data {
   rowsNumber: number;
 }
 
-export interface Datum {
+export interface ContactData {
   id: number;
   name: string;
   email: string;
