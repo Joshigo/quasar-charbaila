@@ -77,10 +77,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { createGallery, updateGallery } from 'src/composables/galleries/useGallery';
+import { useGallery } from 'src/composables/galleries/useGallery';
 import { useCategoriesStore } from 'src/stores/categories';
-// No usamos el payload tipado de la API directamente aquí, ya que el formulario maneja tipos cómodos
-// (booleans y File) y luego transformamos a FormData en el submit.
+
+const { createGallery, updateGallery } = useGallery();
 
 const props = defineProps<{
   modelValue: boolean;

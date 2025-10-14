@@ -7,7 +7,7 @@ export interface GalleryResponse {
 
 export interface Data {
   current_page: number;
-  data: Datum[];
+  data: GalleryData[];
   first_page_url: string;
   from: number;
   last_page: number;
@@ -21,7 +21,7 @@ export interface Data {
   total: number;
 }
 
-export interface Datum {
+export interface GalleryData {
   id: number;
   category_id: number;
   is_pinned: number;

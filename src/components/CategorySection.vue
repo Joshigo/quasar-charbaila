@@ -122,10 +122,12 @@ async function submitCreateCategory() {
     return;
   }
   try {
-    await store.create(name);
+    const res = await store.create(name);
+    const message = res?.message || `Categoría "${name}" creada`;
     createDialog.value = false;
-    $q.notify({ type: 'positive', message: `Categoría "${name}" creada` });
+    $q.notify({ type: 'positive', message });
     emit('created');
+    return message;
   } catch (err) {
     console.log(err);
     $q.notify({ type: 'negative', message: 'No se pudo crear la categoría' });

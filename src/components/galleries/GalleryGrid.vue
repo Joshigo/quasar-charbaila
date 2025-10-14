@@ -60,19 +60,23 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import {
-  listGalleries,
-  changeGalleryVisibility,
-  togglePinGallery,
-  deleteGallery,
-} from 'src/composables/galleries/useGallery';
-import type { Datum as GalleryItem } from 'src/types/gallery.interface';
+import { useGallery } from 'src/composables/galleries/useGallery';
+import type { GalleryData } from 'src/types/gallery.interface';
 import CreateGalleryModal from './CreateGalleryModal.vue';
 
+const {
+  listGalleries,
+  deleteGallery,
+  // updateGallery,
+  changeGalleryVisibility,
+  togglePinGallery,
+  galleries,
+  // pagination,
+  loading,
+  isEditOpen,
+} = useGallery();
+
 const $q = useQuasar();
-const galleries = ref<GalleryItem[]>([]);
-const loading = ref(false);
-const isEditOpen = ref(false);
 const selectedId = ref<number | null>(null);
 const selectedData = ref<
   Partial<{
@@ -94,8 +98,7 @@ function getImageUrl(src: string) {
 async function fetchGalleries() {
   loading.value = true;
   try {
-    const response = await listGalleries(1, 100);
-    galleries.value = response.data.data;
+    await listGalleries();
   } catch (error) {
     console.log(error);
     $q.notify({ type: 'negative', message: 'Error al cargar la galería' });
@@ -104,7 +107,7 @@ async function fetchGalleries() {
   }
 }
 
-function openEdit(item: GalleryItem) {
+function openEdit(item: GalleryData) {
   selectedId.value = item.id;
   selectedData.value = {
     title: item.title,
@@ -117,7 +120,7 @@ function openEdit(item: GalleryItem) {
   isEditOpen.value = true;
 }
 
-async function toggleVisibility(item: GalleryItem) {
+async function toggleVisibility(item: GalleryData) {
   try {
     await changeGalleryVisibility(item.id);
     item.is_visible = item.is_visible ? 0 : 1;
@@ -131,7 +134,7 @@ async function toggleVisibility(item: GalleryItem) {
   }
 }
 
-async function togglePin(item: GalleryItem) {
+async function togglePin(item: GalleryData) {
   try {
     await togglePinGallery(item.id);
     item.is_pinned = item.is_pinned ? 0 : 1;

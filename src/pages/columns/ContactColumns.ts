@@ -13,4 +13,10 @@ export const columns = [
     sortable: true,
     format: (val: string) => formatDate(val),
   },
+  {
+    name: 'actions',
+    label: 'Acciones',
+    field: 'id',
+    align: 'center' as const,
+  },
 ];

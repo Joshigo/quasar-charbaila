@@ -5,7 +5,6 @@ import { useAuthStore } from 'src/stores/auth';
 import type { DeleteResponse } from 'src/types/common/common.interface';
 import { ref } from 'vue';
 import type { Pagination } from 'src/types/common/pagination.interface';
-// import { watch } from 'fs';
 
 export function useReviewsApi() {
   const authStore = useAuthStore();

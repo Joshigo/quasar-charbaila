@@ -57,7 +57,6 @@ export interface CreateCategoryPayload {
   name: string;
 }
 
-// Response for POST /categories (single item)
 export interface CategoryCreateResponse {
   success: boolean;
   code: number;

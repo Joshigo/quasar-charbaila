@@ -27,8 +27,12 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function create(name: string) {
     creating.value = true;
     try {
-      await apiCreateCategory({ name });
+      const data = await apiCreateCategory({ name });
       await fetchAll();
+      console.log(data.message, 'message');
+      return data;
+    } catch (err) {
+      console.log(err);
     } finally {
       creating.value = false;
     }
