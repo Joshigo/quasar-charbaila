@@ -20,9 +20,4 @@ export const linksList = [
     icon: 'add_photo_alternate',
     link: 'gallery',
   },
-  {
-    title: 'test',
-    icon: 'test',
-    link: 'test',
-  },
 ];

@@ -27,7 +27,6 @@ function onCreated() {
 }
 
 async function onCategoryCreated() {
-  // Asegura que otros componentes que dependen de categorías tengan los datos actualizados
   await categoriesStore.fetchAll();
 }
 </script>

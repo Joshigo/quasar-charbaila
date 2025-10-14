@@ -9,31 +9,52 @@
 
       <q-card flat bordered>
         <q-card-section class="q-pa-md">
-          <TableComponent
-            ref="tableRef"
-            data-source="reviews"
-            :columns="['id', 'name', 'email', 'comment', 'rating', 'is_visible', 'created_at']"
-            :column-labels="{
-              id: 'ID',
-              name: 'Nombre',
-              email: 'Correo',
-              comment: 'Comentario',
-              rating: 'Calificación',
-              is_visible: 'Visible',
-              created_at: 'Creado',
-            }"
-            :show-actions="true"
+          <q-table
+            :rows="reviews"
+            :columns="columns"
+            row-key="id"
+            v-model:pagination="tablePagination"
+            :rows-per-page-options="[5, 10, 20, 50]"
+            :loading="loading"
             @request="onRequest"
-            separator="vertical"
           >
-            <template #body-cell-created_at="{ value }">
-              <span>{{ formatDate(value) }}</span>
+            <template #body-cell-rating="props">
+              <q-td :props="props">
+                <q-rating
+                  v-model="props.row.rating"
+                  max="5"
+                  color="amber"
+                  icon="star"
+                  icon-half="star_half"
+                  icon-selected="star"
+                  readonly
+                />
+              </q-td>
             </template>
-            <template #body-cell-actions="{ row }">
-              <q-btn flat dense icon="visibility" @click="handleToggleVisibility(row)" />
-              <q-btn flat dense color="negative" icon="delete" @click="handleDelete(row)" />
+            <template #body-cell-actions="props">
+              <q-td :props="props">
+                <q-btn
+                  size="sm"
+                  color="primary"
+                  icon="visibility"
+                  round
+                  dense
+                  @click="handleVisibility(props.row.id)"
+                  :title="props.row.is_visible ? 'Ocultar' : 'Mostrar'"
+                />
+                <q-btn
+                  size="sm"
+                  color="negative"
+                  icon="delete"
+                  round
+                  dense
+                  class="q-ml-xs"
+                  @click="handleDelete(props.row.id)"
+                  title="Eliminar"
+                />
+              </q-td>
             </template>
-          </TableComponent>
+          </q-table>
         </q-card-section>
       </q-card>
     </div>
@@ -41,27 +62,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import TableComponent from 'src/components/TableComponent.vue';
+import { onMounted, computed } from 'vue';
 import { useReviewsApi } from 'src/composables/reviews/useReviewsApi';
-import type { ReviewVisibilityData } from 'src/types/review.interface';
-import { formatDate } from 'src/utils';
+import { formatDate } from 'src/utils/index';
+const {
+  // props
+  reviews,
+  loading,
+  pagination,
 
-const { deleteReview, changeReviewVisibility } = useReviewsApi();
+  // methods
+  listReviews,
+  changeReviewVisibility,
+  deleteReview,
+} = useReviewsApi();
 
-const tableRef = ref<InstanceType<typeof TableComponent> | null>(null);
+const columns = [
+  { name: 'id', label: 'ID', field: 'id', align: 'left' as const, sortable: true },
+  { name: 'name', label: 'Nombre', field: 'name', align: 'left' as const, sortable: true },
+  { name: 'email', label: 'Correo', field: 'email', align: 'left' as const, sortable: true },
+  {
+    name: 'comment',
+    label: 'Comentario',
+    field: 'comment',
+    align: 'left' as const,
+    sortable: false,
+  },
+  {
+    name: 'rating',
+    label: 'Calificación',
+    field: 'rating',
+    align: 'center' as const,
+    sortable: true,
+  },
+  {
+    name: 'is_visible',
+    label: 'Visible',
+    field: 'is_visible',
+    align: 'center' as const,
+    sortable: true,
+    format: (val: number) => (val ? 'Sí' : 'No'),
+  },
+  {
+    name: 'created_at',
+    label: 'Creado',
+    field: 'created_at',
+    align: 'left' as const,
+    sortable: true,
+    format: (val: string) => formatDate(val),
+  },
+  {
+    name: 'actions',
+    label: 'Acciones',
+    field: 'id',
+    align: 'center' as const,
+  },
+];
 
-function onRequest(payload: unknown) {
-  console.log('Request payload:', payload);
+function handleVisibility(id: number) {
+  void changeReviewVisibility(id).then(() => listReviews());
 }
 
-async function handleToggleVisibility(row: ReviewVisibilityData) {
-  await changeReviewVisibility(row.id);
-  tableRef.value?.refresh?.();
+function handleDelete(id: number) {
+  void deleteReview(id).then(() => listReviews());
 }
 
-async function handleDelete(row: ReviewVisibilityData) {
-  await deleteReview(row.id);
-  tableRef.value?.refresh?.();
+onMounted(async () => {
+  await listReviews();
+});
+
+const tablePagination = computed({
+  get() {
+    return {
+      page: pagination.value.page,
+      rowsPerPage: pagination.value.rowsPerPage,
+      rowsNumber: pagination.value.rowsNumber,
+    };
+  },
+  set(val: { page?: number; rowsPerPage?: number; rowsNumber?: number }) {
+    if (typeof val.page === 'number') pagination.value.page = val.page;
+    if (typeof val.rowsPerPage === 'number') pagination.value.rowsPerPage = val.rowsPerPage;
+    if (typeof val.rowsNumber === 'number') pagination.value.rowsNumber = val.rowsNumber;
+  },
+});
+
+function onRequest(props: { pagination: { page: number; rowsPerPage: number } }) {
+  const { page, rowsPerPage } = props.pagination;
+  if (page !== pagination.value.page) pagination.value.page = page;
+  if (rowsPerPage !== pagination.value.rowsPerPage) pagination.value.rowsPerPage = rowsPerPage;
+  void listReviews();
 }
 </script>

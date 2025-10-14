@@ -1,7 +1,6 @@
 <template>
   <q-page class="row items-center justify-evenly">
     <div class="q-mx-auto full-width" style="max-width: 1200px">
-      <!-- Page header -->
       <div class="row items-center justify-between q-mb-md">
         <div class="text-h5">Contactos</div>
         <div class="text-caption text-grey-7">Listado y acciones</div>
@@ -9,29 +8,35 @@
 
       <q-card flat bordered>
         <q-card-section class="q-pa-md">
-          <TableComponent
-            ref="tableRef"
-            data-source="contacts"
-            :columns="['id', 'name', 'email', 'message', 'subject', 'created_at']"
-            :column-labels="{
-              id: 'ID',
-              name: 'Nombre',
-              email: 'Correo',
-              subject: 'Asunto',
-              message: 'Mensaje',
-              created_at: 'Creado',
-            }"
-            :show-actions="true"
+          <q-table
+            :rows="contacts"
+            :columns="columns"
+            row-key="id"
+            v-model:pagination="tablePagination"
+            :rows-per-page-options="[5, 10, 20, 50]"
+            :loading="loading"
             @request="onRequest"
-            separator="vertical"
           >
-            <template #body-cell-created_at="{ value }">
-              <span>{{ formatDate(value) }}</span>
+            <template #body-cell-date="props">
+              <q-td :props="props">
+                {{ formatDate(props.row.date) }}
+              </q-td>
             </template>
-            <template #body-cell-actions="{ row }">
-              <q-btn flat dense color="negative" icon="delete" @click="handleDelete(row)" />
+            <template #body-cell-actions="props">
+              <q-td :props="props">
+                <q-btn
+                  size="sm"
+                  color="negative"
+                  icon="delete"
+                  round
+                  dense
+                  class="q-ml-xs"
+                  @click="handleDelete(props.row.id)"
+                  title="Eliminar"
+                />
+              </q-td>
             </template>
-          </TableComponent>
+          </q-table>
         </q-card-section>
       </q-card>
     </div>
@@ -39,22 +44,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import TableComponent from 'src/components/TableComponent.vue';
+import { onMounted, computed } from 'vue';
 import { useContactApi } from 'src/composables/contacts/useContactApi';
-import type { Datum } from 'src/types/contact.interface';
 import { formatDate } from 'src/utils';
 
-const { deleteContact } = useContactApi();
+const {
+  // methods
+  listContacts,
+  deleteContact,
 
-const tableRef = ref<InstanceType<typeof TableComponent> | null>(null);
+  // props
+  contacts,
+  pagination,
+  loading,
+} = useContactApi();
 
-function onRequest(/* payload: unknown */) {
-  // The TableComponent handles pagination and fetching in contacts mode.
-}
+const columns = [
+  { name: 'id', label: 'ID', field: 'id', align: 'left' as const, sortable: true },
+  { name: 'name', label: 'Nombre', field: 'name', align: 'left' as const, sortable: true },
+  { name: 'email', label: 'Email', field: 'email', align: 'left' as const, sortable: true },
+  { name: 'message', label: 'Mensaje', field: 'message', align: 'left' as const, sortable: false },
+  {
+    name: 'created_at',
+    label: 'Creado',
+    field: 'created_at',
+    align: 'left' as const,
+    sortable: true,
+    format: (val: string) => formatDate(val),
+  },
+];
 
-async function handleDelete(row: Datum) {
-  await deleteContact(row.id);
-  tableRef.value?.refresh?.();
+const handleDelete = (id: number) => {
+  void deleteContact(id).then(() => listContacts());
+};
+
+onMounted(async () => {
+  await listContacts();
+});
+
+const tablePagination = computed({
+  get() {
+    return {
+      page: pagination.value.page,
+      rowsPerPage: pagination.value.rowsPerPage,
+      rowsNumber: pagination.value.rowsNumber,
+    };
+  },
+  set(val: { page?: number; rowsPerPage?: number; rowsNumber?: number }) {
+    if (typeof val.page === 'number') pagination.value.page = val.page;
+    if (typeof val.rowsPerPage === 'number') pagination.value.rowsPerPage = val.rowsPerPage;
+    if (typeof val.rowsNumber === 'number') pagination.value.rowsNumber = val.rowsNumber;
+  },
+});
+
+function onRequest(props: { pagination: { page: number; rowsPerPage: number } }) {
+  const { page, rowsPerPage } = props.pagination;
+  if (page !== pagination.value.page) pagination.value.page = page;
+  if (rowsPerPage !== pagination.value.rowsPerPage) pagination.value.rowsPerPage = rowsPerPage;
+  void listContacts();
 }
 </script>
