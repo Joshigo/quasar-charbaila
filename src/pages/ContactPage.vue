@@ -47,6 +47,7 @@
 import { onMounted, computed } from 'vue';
 import { useContactApi } from 'src/composables/contacts/useContactApi';
 import { formatDate } from 'src/utils';
+import { columns } from 'src/pages/columns/ContactColumns';
 
 const {
   // methods
@@ -58,21 +59,6 @@ const {
   pagination,
   loading,
 } = useContactApi();
-
-const columns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'left' as const, sortable: true },
-  { name: 'name', label: 'Nombre', field: 'name', align: 'left' as const, sortable: true },
-  { name: 'email', label: 'Email', field: 'email', align: 'left' as const, sortable: true },
-  { name: 'message', label: 'Mensaje', field: 'message', align: 'left' as const, sortable: false },
-  {
-    name: 'created_at',
-    label: 'Creado',
-    field: 'created_at',
-    align: 'left' as const,
-    sortable: true,
-    format: (val: string) => formatDate(val),
-  },
-];
 
 const handleDelete = (id: number) => {
   void deleteContact(id).then(() => listContacts());
