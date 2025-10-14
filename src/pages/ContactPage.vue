@@ -44,10 +44,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted } from 'vue';
 import { useContactApi } from 'src/composables/contacts/useContactApi';
 import { formatDate } from 'src/utils';
 import { columns } from 'src/pages/columns/ContactColumns';
+import { useTablePagination } from 'src/composables/useTablePagination';
 
 const {
   // methods
@@ -68,25 +69,5 @@ onMounted(async () => {
   await listContacts();
 });
 
-const tablePagination = computed({
-  get() {
-    return {
-      page: pagination.value.page,
-      rowsPerPage: pagination.value.rowsPerPage,
-      rowsNumber: pagination.value.rowsNumber,
-    };
-  },
-  set(val: { page?: number; rowsPerPage?: number; rowsNumber?: number }) {
-    if (typeof val.page === 'number') pagination.value.page = val.page;
-    if (typeof val.rowsPerPage === 'number') pagination.value.rowsPerPage = val.rowsPerPage;
-    if (typeof val.rowsNumber === 'number') pagination.value.rowsNumber = val.rowsNumber;
-  },
-});
-
-function onRequest(props: { pagination: { page: number; rowsPerPage: number } }) {
-  const { page, rowsPerPage } = props.pagination;
-  if (page !== pagination.value.page) pagination.value.page = page;
-  if (rowsPerPage !== pagination.value.rowsPerPage) pagination.value.rowsPerPage = rowsPerPage;
-  void listContacts();
-}
+const { tablePagination, onRequest } = useTablePagination(pagination, listContacts);
 </script>

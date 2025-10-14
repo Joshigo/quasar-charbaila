@@ -20,29 +20,29 @@ export function useContactApi() {
   });
   const loading = ref(false);
 
-  async function listContacts(page: number = 1, rowsPerPage: number = 10) {
+  async function listContacts() {
     try {
       loading.value = true;
       const { data } = await api.get<ContactResponse>('/contacts', {
         params: {
-          page,
-          rowsPerPage,
+          page: pagination.value.page,
+          rowsPerPage: pagination.value.rowsPerPage,
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       contacts.value = data.data.data;
-      console.log('Contacts ref:', contacts.value);
-      console.log('Contacts API data:', data);
-      // pagination.value = {
-      //   current_page: data.data.current_page,
-      //   rowsPerPage: data.data.rowsPerPage,
-      //   rowsNumber: data.data.rowsNumber,
-      //   total_pages: data.data.last_page,
-      //   to: data.data.to,
-      //   from: data.data.from,
-      // };
+      const p = data.data;
+      console.log('Contacts Data:', data.data);
+      pagination.value = {
+        page: p.current_page,
+        rowsPerPage: p.rowsPerPage,
+        rowsNumber: p.rowsNumber,
+        total_pages: p.last_page,
+        to: p.to,
+        from: p.from,
+      };
       console.log('Contacts Pagination:', pagination.value);
     } catch (error) {
       console.error('Error fetching contacts:', error);
