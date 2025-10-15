@@ -9,6 +9,8 @@ export function useContactApi() {
   const authStore = useAuthStore();
   const token = authStore.token;
 
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
   const contacts = ref<ContactData[]>([]);
   const pagination = ref<Pagination>({
     page: 1,
@@ -28,21 +30,16 @@ export function useContactApi() {
           page: pagination.value.page,
           rowsPerPage: pagination.value.rowsPerPage,
         },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       contacts.value = data.data.data;
       const p = data.data;
 
-      pagination.value = {
-        page: p.current_page,
-        rowsPerPage: p.rowsPerPage,
-        rowsNumber: p.rowsNumber,
-        total_pages: p.last_page,
-        to: p.to,
-        from: p.from,
-      };
+      pagination.value.page = p.current_page ?? 1;
+      pagination.value.rowsPerPage = p.rowsPerPage ?? 10;
+      pagination.value.rowsNumber = p.rowsNumber ?? 0;
+      pagination.value.total_pages = p.last_page ?? 0;
+      pagination.value.to = p.to ?? 0;
+      pagination.value.from = p.from ?? 0;
     } catch (error) {
       console.error('Error fetching contacts:', error);
     } finally {
@@ -53,11 +50,7 @@ export function useContactApi() {
   async function deleteContact(contactId: number) {
     loading.value = true;
     try {
-      const { data } = await api.delete<DeleteResponse>(`/contacts/${contactId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.delete<DeleteResponse>(`/contacts/${contactId}`, {});
       return data;
     } catch (error) {
       console.error('Error deleting contact:', error);

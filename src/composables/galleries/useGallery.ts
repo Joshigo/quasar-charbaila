@@ -14,6 +14,8 @@ export function useGallery() {
   const authStore = useAuthStore();
   const token = authStore.token;
 
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
   const galleries = ref<GalleryData[]>([]);
   const pagination = ref<Pagination>({
     page: 1,
@@ -33,9 +35,6 @@ export function useGallery() {
         params: {
           page: pagination.value.page,
           per_page: pagination.value.rowsPerPage,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
         },
       });
       galleries.value = data.data.data;
@@ -80,12 +79,7 @@ export function useGallery() {
               return fd;
             })();
 
-      const { data } = await api.post<GalleryResponse>(`/galleries`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const { data } = await api.post<GalleryResponse>(`/galleries`, formData, {});
       return data;
     } catch (error) {
       console.error('Error creating gallery:', error);
@@ -98,11 +92,7 @@ export function useGallery() {
   async function deleteGallery(galleryId: number): Promise<DeleteResponse | undefined> {
     loading.value = true;
     try {
-      const { data } = await api.delete<DeleteResponse>(`/galleries/${galleryId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.delete<DeleteResponse>(`/galleries/${galleryId}`, {});
       return data;
     } catch (error) {
       console.error('Error deleting gallery:', error);
@@ -140,12 +130,11 @@ export function useGallery() {
               return fd;
             })();
 
-      const { data } = await api.post<GalleryResponse>(`/galleries/${galleryId}/image`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const { data } = await api.post<GalleryResponse>(
+        `/galleries/${galleryId}/image`,
+        formData,
+        {},
+      );
       return data;
     } catch (error) {
       console.error('Error updating gallery:', error);
@@ -159,11 +148,11 @@ export function useGallery() {
   async function changeGalleryVisibility(galleryId: number) {
     loading.value = true;
     try {
-      const { data } = await api.put<GalleryResponse>(`/galleries/${galleryId}/visibility`, null, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.put<GalleryResponse>(
+        `/galleries/${galleryId}/visibility`,
+        null,
+        {},
+      );
       return data;
     } catch (error) {
       console.error('Error changing gallery visibility:', error);
@@ -173,11 +162,7 @@ export function useGallery() {
   }
   async function togglePinGallery(galleryId: number) {
     try {
-      const { data } = await api.put<GalleryResponse>(`/galleries/${galleryId}/pin`, null, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.put<GalleryResponse>(`/galleries/${galleryId}/pin`, null, {});
       return data;
     } catch (error) {
       console.error('Error pinning/unpinning gallery:', error);

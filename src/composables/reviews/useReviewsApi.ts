@@ -10,6 +10,8 @@ export function useReviewsApi() {
   const authStore = useAuthStore();
   const token = authStore.token;
 
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
   const reviews = ref<ReviewVisibilityData[]>([]);
   const pagination = ref<Pagination>({
     page: 1,
@@ -28,9 +30,6 @@ export function useReviewsApi() {
         params: {
           page: pagination.value.page,
           rowsPerPage: pagination.value.rowsPerPage,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
         },
       });
       reviews.value = data.data.data;
@@ -58,11 +57,7 @@ export function useReviewsApi() {
       const { data } = await api.put<ReviewVisibilityResponse>(
         `/reviews/${reviewId}/visibility`,
         undefined,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        {},
       );
       return data;
     } catch (error) {
@@ -75,11 +70,7 @@ export function useReviewsApi() {
   async function deleteReview(reviewId: number) {
     loading.value = true;
     try {
-      const { data } = await api.delete<DeleteResponse>(`/reviews/${reviewId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.delete<DeleteResponse>(`/reviews/${reviewId}`, {});
       return data;
     } catch (error) {
       console.error('Error deleting review:', error);
@@ -100,18 +91,3 @@ export function useReviewsApi() {
     loading,
   };
 }
-
-// export const reviewPagination = ref({
-//   page: 1,
-//   per_page: 10,
-//   total: 0,
-//   total_pages: 0,
-// });
-
-// export function setReviewPage(page: number) {
-//   if (Number.isFinite(page) && page > 0) reviewPagination.value.page = page;
-// }
-
-// export function setReviewPerPage(perPage: number) {
-//   if (Number.isFinite(perPage) && perPage > 0) reviewPagination.value.per_page = perPage;
-// }

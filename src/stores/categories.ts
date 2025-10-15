@@ -1,18 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Datum } from 'src/types/category.interface';
-import {
-  listCategories as apiListCategories,
-  createCategory as apiCreateCategory,
-  deleteCategory as apiDeleteCategory,
-  updateCategory as apiUpdateCategory,
-} from 'src/composables/categories/useCategoryApi';
+import type { CategoryData } from 'src/types/category.interface';
+import { useCategoryApi } from 'src/composables/categories/useCategoryApi';
 
 export const useCategoriesStore = defineStore('categories', () => {
-  const categories = ref<Datum[]>([]);
+  const categories = ref<CategoryData[]>([]);
   const loading = ref(false);
   const creating = ref(false);
   const deletingIds = ref<Set<number>>(new Set());
+
+  const {
+    listCategories: apiListCategories,
+    createCategory: apiCreateCategory,
+    deleteCategory: apiDeleteCategory,
+    updateCategory: apiUpdateCategory,
+  } = useCategoryApi();
 
   async function fetchAll() {
     loading.value = true;
@@ -50,10 +52,9 @@ export const useCategoriesStore = defineStore('categories', () => {
 
   async function update(id: number, name: string) {
     await apiUpdateCategory(id, { name });
-    // Update locally if exists
     const idx = categories.value.findIndex((c) => c.id === id);
     if (idx !== -1) {
-      categories.value[idx] = { ...categories.value[idx], name } as Datum;
+      categories.value[idx] = { ...categories.value[idx], name } as CategoryData;
     }
   }
 

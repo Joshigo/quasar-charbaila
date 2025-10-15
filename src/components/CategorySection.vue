@@ -82,7 +82,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import type { Datum } from 'src/types/category.interface';
+import type { CategoryData } from 'src/types/category.interface';
 import { useCategoriesStore } from 'src/stores/categories';
 
 const emit = defineEmits<{
@@ -92,7 +92,7 @@ const emit = defineEmits<{
 const $q = useQuasar();
 
 const store = useCategoriesStore();
-const categories = computed<Datum[]>(() => store.categories);
+const categories = computed<CategoryData[]>(() => store.categories);
 const loading = computed(() => store.loading);
 const creating = computed(() => store.creating);
 const createDialog = ref(false);
